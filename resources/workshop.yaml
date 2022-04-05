@@ -1,0 +1,69 @@
+apiVersion: learningcenter.tanzu.vmware.com/v1beta1
+kind: Workshop
+metadata:
+  name: go-from-docker-compose-to-k8s
+spec:
+  title: Go from Docker Compose to Kubernetes
+  description: A workshop for using Spring Cloud Gateway for Kubernetes
+  vendor: eduk8s.io
+  difficulty: beginner
+  duration: 60m
+  url: https://github.com/akinsanyaleke/cb
+  content:
+    image: docker.io/leke213/scgk-workshop
+    files: github.com/akinsanyaleke/cb?ref=main
+  session:
+    namespaces:
+      budget: small
+    applications:
+      terminal:
+        enabled: true
+        layout: split
+      console:
+        enabled: true
+      editor:
+        enabled: true
+    # objects:
+    # - apiVersion: rbac.authorization.k8s.io/v1
+    #   kind: RoleBinding
+    #   metadata:
+    #     name: $(session_namespace)-scg-rolebinding
+    #   roleRef:
+    #     apiGroup: rbac.authorization.k8s.io
+    #     kind: Role
+    #     name: $(workshop_namespace)-scg-role
+    #   subjects:
+    #     - kind: ServiceAccount
+    #       namespace: $(workshop_namespace)
+    #       name: $(service_account)
+    # This would be insecure...
+    # - apiVersion: v1
+    #   data:
+    #     .dockerconfigjson: e30K
+    #   kind: Secret
+    #   metadata:
+    #     annotations:
+    #       secretgen.carvel.dev/image-pull-secret: ""
+    #     name: tap-registry
+    #  type: kubernetes.io/dockerconfigjson
+    # - apiVersion: rbac.authorization.k8s.io/v1
+    #   kind: Role
+    #   metadata:
+    #     name: $(workshop_namespace)-scg-role
+    #   rules:
+    #     - apiGroups:
+    #         - tanzu.vmware.com
+    #       resources:
+    #         - springcloudgatewaymappings
+    #         - springcloudgatewayrouteconfigs
+    #         - springcloudgateways
+    #         - springcloudgateways/status
+    #         - springcloudgateways/scale
+    #       verbs:
+    #         - '*'
+    #     - apiGroups:
+    #       - serving.knative.dev
+    #       resources:
+    #       - services
+    #       verbs:
+    #       - '*'

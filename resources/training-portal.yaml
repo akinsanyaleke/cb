@@ -1,0 +1,16 @@
+apiVersion: learningcenter.tanzu.vmware.com/v1beta1
+kind: TrainingPortal
+metadata:
+  name: go-from-docker-compose-to-k8s
+spec:
+  portal:
+    registration:
+      type: anonymous
+    password: tanzu
+    updates:
+      workshop: true
+  workshops:
+  - name: go-from-docker-compose-to-k8s
+    capacity: 10
+    expires: 90m
+    orphaned: 10m

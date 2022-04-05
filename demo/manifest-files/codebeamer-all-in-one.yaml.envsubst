@@ -1,0 +1,157 @@
+#@ load("@ytt:data", "data")
+
+#@ def labels():
+app: #@ data.values.APP_NAME_CUSTOM
+#@ end
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels: #@ labels()
+  name: #@ data.values.APP_NAME_CUSTOM
+spec:
+  selector:
+    matchLabels: #@ labels()
+  template:
+    metadata:
+      labels: #@ labels()
+    spec:
+      containers:
+      - image: #@ data.values.APP_IMAGE + ":" + data.values.APP_IMAGE_TAG
+        name: #@ data.values.APP_NAME_CUSTOM
+        resources:
+          requests:
+            memory: "4000Mi"
+          limits:
+            memory: "4200Mi"
+        ports:
+        - containerPort: #@ int(data.values.APP_PORT1)
+          protocol: TCP
+        env:
+        - name: CB_DATABASE_SERVICE_NAME
+          value: "database"
+        - name: WAIT_HOSTS
+          value: #@ data.values.DB_HOST_NAME + ":" + data.values.DB_PORT
+        - name: WAIT_HOSTS_TIMEOUT
+          value: "120"
+        - name: CB_database_JDBC_Username
+          valueFrom:
+            secretKeyRef:
+              name: codebeamer-db-secret
+              key: database-user
+        - name: CB_database_JDBC_Password
+          valueFrom:
+            secretKeyRef:
+              name: codebeamer-db-secret
+              key: database-password
+        - name: CB_MAXHEAPSIZE
+          value: "2048"
+        - name: CB_database_JDBC_Driver
+          value: "com.mysql.jdbc.Driver"
+        - name: CB_database_JDBC_Timeout
+          value: "120"
+        - name: CB_database_JDBC_ConnectionURL
+          value: #@ "jdbc:mysql://" + data.values.DB_HOST_NAME + ":" + data.values.DB_PORT + "/" + data.values.DB_NAME + "?autoReconnect=true&zeroDateTimeBehavior=convertToNull&emulateLocators=true&characterEncoding=UTF-8&useSSL=false"
+        #! - name: CB_LICENSE
+        #!   value: ${APP_LICENSE}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: #@ data.values.APP_NAME_CUSTOM
+spec:
+  ports:
+  - name: app-port-1
+    port: #@ int(data.values.APP_PORT1)
+  selector:
+    app: #@ data.values.APP_NAME_CUSTOM
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: #@ data.values.APP_NAME_CUSTOM
+  labels: #@ labels()
+spec:
+  rules:
+  - host: #@ data.values.APP_HOST_NAME + "-" + $SESSION_NAME + "-" + data.values.APP_DOMAIN_NAME
+    http:
+      paths:
+      - backend:
+          service:
+            name: #@ data.values.APP_NAME_CUSTOM
+            port:
+              number: #@ int(data.values.APP_PORT1)
+        path: /
+        pathType: Prefix
+---
+
+#! DB
+
+#@ def labelsdb():
+app: #@ data.values.DB_HOST_NAME
+#@ end
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels: #@ labelsdb()
+  name: #@ data.values.DB_HOST_NAME
+spec:
+  selector:
+    matchLabels: #@ labelsdb()
+  template:
+    metadata:
+      labels: #@ labelsdb()
+    spec:
+      containers:
+      - name: #@ data.values.DB_HOST_NAME
+        image: #@ data.values.DB_IMAGE + ":" + data.values.DB_IMAGE_TAG
+        ports:
+        - containerPort: #@ int(data.values.DB_PORT)
+        readinessProbe:
+          timeoutSeconds: 1
+          initialDelaySeconds: 5
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE -e 'SELECT 1'
+        livenessProbe:
+          timeoutSeconds: 1
+          initialDelaySeconds: 30
+          tcpSocket:
+            port: #@ int(data.values.DB_PORT)
+        env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: "codebeamer-db-secret"
+              key: database-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "codebeamer-db-secret"
+              key: database-password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "codebeamer-db-secret"
+              key: database-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: "codebeamer-db-secret"
+              key: database-name
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: #@ data.values.DB_HOST_NAME
+spec:
+  ports:
+  - name: db-port
+    port: #@ int(data.values.DB_PORT)
+  selector:
+    app: #@ data.values.DB_HOST_NAME
+
