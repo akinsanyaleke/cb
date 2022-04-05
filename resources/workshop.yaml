@@ -10,7 +10,7 @@ spec:
   duration: 60m
   url: https://github.com/akinsanyaleke/cb
   content:
-    image: docker.io/leke213/scgk-workshop
+    image: docker.io/leke213/cb
     files: github.com/akinsanyaleke/cb?ref=main
   session:
     namespaces:
