@@ -1,0 +1,13 @@
+name: Docker compose to Kubernetes
+
+modules:
+    activate:
+    - workshop-overview
+    - services-overview
+    - deployment-overview
+    - ingress-overview
+    - overview-routes
+    - exercises/define-service
+    - exercises/define-deployment
+    - exercises/define-ingress
+    - workshop-summary

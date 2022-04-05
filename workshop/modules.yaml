@@ -1,0 +1,31 @@
+    - workshop-overview
+    - services-overview
+    - deployment-overview
+    - ingress-overview
+    - exercises/define-service
+    - exercises/define-deployment
+    - exercises/define-ingress
+    - workshop-summary
+
+modules:
+    workshop-overview:
+        name: Workshop Overview
+        exit_sign: Services Overview
+    services-overview:
+        name: Services Overview
+        exit_sign: Deployment Overview
+    deployment-overview:
+        name: Deployment Overview
+        exit_sign: Ingress Overview
+    ingress-overview:
+        name: Ingress Overview
+        exit_sign: Create a Service
+    exercises/define-service:
+        name: Create a Service
+    exercises/define-deployment:
+        name: Create a Deployment
+    exercises/define-ingress:
+        name: Create an Ingress
+    workshop-summary:
+        name: Workshop Summary
+        exit_sign: Finish Workshop
